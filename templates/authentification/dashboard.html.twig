@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AuthentificationController!{% endblock %}
+
+{% block body %}
+
+    <h1>{{ controller_name }}</h1>
+	<h4> Numéro client : {{ app.session.get('idUtilisateur') }} <br>
+		{{ app.session.get('prenomUtilisateur') }} {{ app.session.get('nomUtilisateur') }}<br>
+	</h4>
+
+ 
+{% endblock %}
