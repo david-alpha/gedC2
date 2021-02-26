@@ -1,27 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des genres{% endblock %}
+{% block title %}Liste des Utilisateurs{% endblock %}
 
 {% block body %}
 <h1>{{ controller_name }}</h1>
 <table class="table table-hover">
   <thead>
     <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Type</th>
+      <th scope="col">N°contrat</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Prénom</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
   <tbody>
-	{% for item in listeGenre %}
+	{% for item in listeUser %}
     <tr class="table">
       <th scope="row">{{ item.id }}</th>
-      <td>{{ item.type }}</td>
+      <td>{{ item.nom }}</td>
+      <td>{{ item.prenom }}</td>
       <td> 
-		<a href="/deleteGenre/{{ item.id }}">
+		<a href="/deleteUser/{{ item.id }}">
 			<i class="bi bi-trash"></i>
 		</a>
-		<a href="/updateGenre/{{ item.id }}">
+		<a href="/updateUser/{{ item.id }}">
 			<i class="bi bi-arrow-repeat"></i>
 		</a>
 

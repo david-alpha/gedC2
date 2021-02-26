@@ -34,4 +34,14 @@ class UserController extends AbstractController
             'controller_name' => 'Un utilisateur a été ajouté',
         ]);
     }
+	#[Route('/listeUser', name: 'listeUser')]
+    public function listeUser(Request $request, EntityManagerInterface $manager): Response
+    {
+		//Récupération de tous les utilisateurs
+		$listeUser = $manager->getRepository(Utilisateur::class)->findAll();
+        return $this->render('user/listeUser.html.twig', [
+            'controller_name' => 'Liste des utilisateurs',
+            'listeUser' => $listeUser,
+        ]);
+    }
 }
