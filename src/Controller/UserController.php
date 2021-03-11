@@ -44,4 +44,33 @@ class UserController extends AbstractController
             'listeUser' => $listeUser,
         ]);
     }
+	#[Route('/updateUser/{id}', name: 'updateUser')]
+    public function updateUser(Request $request, EntityManagerInterface $manager, Utilisateur $id ): Response
+    {
+		$sess = $request->getSession();
+		//Créer des variables de session
+		$sess->set("idUserModif", $id->getId());
+		return $this->render('user/updateUser.html.twig', [
+            'controller_name' => "Mise à jour d'un Utilisateur",
+            'user' => $id,
+        ]);
+    }
+	#[Route('/updateUserBdd', name: 'updateUserBdd')]
+    public function updateUserBdd(Request $request, EntityManagerInterface $manager): Response
+    {
+		$sess = $request->getSession();
+		//Créer des variables de session
+		$id = $sess->get("idUserModif");
+		$user = $manager->getRepository(Utilisateur::class)->findOneById($id);
+		if(!empty($request->request->get('nom')))
+			$user->setNom($request->request->get('nom'));
+		if(!empty($request->request->get('prenom')))
+			$user->setPrenom($request->request->get('prenom'));
+		if(!empty($request->request->get('code')))
+			$user->setCode($request->request->get('code'));
+		$manager->persist($user);
+		$manager->flush();
+		
+		return $this->redirectToRoute('listeUser');
+    }
 }

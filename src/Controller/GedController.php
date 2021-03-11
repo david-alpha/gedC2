@@ -65,4 +65,15 @@ class GedController extends AbstractController
             'listeGenre' => $listeGenre,
         ]);
     }
+	
+	#[Route('/listeDocument', name: 'listeDocument')]
+    public function listeDocument(Request $request, EntityManagerInterface $manager): Response
+    {
+		//Requête pour récupérer toute la table genre
+		$listeDocument = $manager->getRepository(Document::class)->findAll();
+        return $this->render('ged/listeDocument.html.twig', [
+            'controller_name' => 'Liste des Documents',
+            'listeDocument' => $listeDocument,
+        ]);
+    }
 }
