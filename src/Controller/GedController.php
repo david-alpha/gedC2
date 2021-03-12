@@ -76,4 +76,38 @@ class GedController extends AbstractController
             'listeDocument' => $listeDocument,
         ]);
     }
+	#[Route('/deleteDocument/{id}', name: 'delete_document')]
+    public function deleteDocument(Request $request, EntityManagerInterface $manager, Document $id): Response
+    {
+		$sess = $request->getSession();
+		if($sess->get("idUtilisateur")){
+			
+		//suppression physique du document :
+		if(unlink("upload/".$id->getChemin())){
+		//suppression du lien dans la base de données
+			$manager->remove($id);
+			$manager->flush();
+		}
+		return $this->redirectToRoute('listeDocument');
+		}else{
+			return $this->redirectToRoute('authentification');	
+		}
+    }
+	#[Route('/permission', name: 'permission')]
+    public function permission(Request $request, EntityManagerInterface $manager, Document $id): Response
+    {
+		$sess = $request->getSession();
+		if($sess->get("idUtilisateur")){
+			//Récupération des listes
+			$listeDocument = $manager->getRepository(Document::class)->findAll();
+			$listeUser = $manager->getRepository(Utilisateur::class)->findAll();
+			return $this->render('ged/permission.html.twig', [
+            'controller_name' => "Attribution d'une permission",
+            'listeDocument' => $listeDocument,
+            'listeUser' => $listeUser,
+        ]);
+		}else{
+			return $this->redirectToRoute('authentification');	
+		}
+    }
 }

@@ -14,11 +14,16 @@ use App\Entity\Document;
 class GenreController extends AbstractController
 {
     #[Route('/formGenre', name: 'formGenre')]
-    public function formGenre(): Response
+    public function formGenre(Request $request): Response
     {
-        return $this->render('genre/index.html.twig', [
-            'controller_name' => 'GenreController',
-        ]);
+		$sess = $request->getSession();
+		if($sess->get("idUtilisateur")){
+			return $this->render('genre/index.html.twig', [
+				'controller_name' => 'GenreController',
+			]);
+		}else{
+			return $this->redirectToRoute('authentification');	
+		}
     }
 	#[Route('/insertGenre', name: 'insertGenre')]
     public function insertGenre(Request $request, EntityManagerInterface $manager): Response
