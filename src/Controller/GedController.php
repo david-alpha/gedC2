@@ -9,6 +9,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Document;
 use App\Entity\Genre;
+use App\Entity\Autorisation;
+use App\Entity\Utilisateur;
+use App\Entity\Acces;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -22,15 +25,18 @@ class GedController extends AbstractController
     {
 		//Requête pour récupérer toute la table genre
 		$listeGenre = $manager->getRepository(Genre::class)->findAll();
+		$listeAutorisation = $manager->getRepository(Autorisation::class)->findAll();
         return $this->render('ged/uploadGed.html.twig', [
             'controller_name' => "Upload d'un Document",
             'listeGenre' => $listeGenre,
+            'listeAutorisation' => $listeAutorisation,
+            'listeUsers' => $manager->getRepository(Utilisateur::class)->findAll(),
         ]);
     }
 	#[Route('/insertGed', name: 'insertGed')]
     public function insertGed(Request $request, EntityManagerInterface $manager): Response
     {
-		
+		$sess = $request->getSession();
 		//création d'un nouveau document
 		$Document = new Document();
 		//Récupération et transfert du fichier
@@ -54,26 +60,43 @@ class GedController extends AbstractController
 			$manager->persist($Document);
 			$manager->flush();
 		}
+		if($request->request->get('utilisateur') != -1){
+			$user = $manager->getRepository(Utilisateur::class)->findOneById($request->request->get('utilisateur'));
+			$autorisation = $manager->getRepository(Autorisation::class)->findOneById($request->request->get('autorisation'));
+			$acces = new Acces();
+			$acces->setUtilisateurId($user);
+			$acces->setAutorisationId($autorisation);
+			$acces->setDocumentId($Document);
+			$manager->persist($acces);
+			$manager->flush();	
+		}
+		//Création d'un accès pour l'uploadeur (propriétaire)
+		$user = $manager->getRepository(Utilisateur::class)->findOneById($sess->get("idUtilisateur"));
+			$autorisation = $manager->getRepository(Autorisation::class)->findOneById(1);
+			$acces = new Acces();
+			$acces->setUtilisateurId($user);
+			$acces->setAutorisationId($autorisation);
+			$acces->setDocumentId($Document);
+			$manager->persist($acces);
+			$manager->flush();	
 		
-		
-		
-		
-		//Requête pour récupérer toute la table genre
-		$listeGenre = $manager->getRepository(Genre::class)->findAll();
-        return $this->render('ged/uploadGed.html.twig', [
-            'controller_name' => "Upload d'un Document",
-            'listeGenre' => $listeGenre,
-        ]);
+		return $this->redirectToRoute('listeDocument');
     }
 	
 	#[Route('/listeDocument', name: 'listeDocument')]
     public function listeDocument(Request $request, EntityManagerInterface $manager): Response
     {
-		//Requête pour récupérer toute la table genre
-		$listeDocument = $manager->getRepository(Document::class)->findAll();
+		//Ouverture de la session
+		$sess = $request->getSession();
+		
+		//Récupération de l'utilisateur
+		$user = $manager->getRepository(Utilisateur::class)->findOneById($sess->get("idUtilisateur"));
+		$listeAcces = $manager->getRepository(Acces::class)->findByUtilisateurId($user);
+		//$listeDocument = $manager->getRepository(Document::class)->findAll();
         return $this->render('ged/listeDocument.html.twig', [
             'controller_name' => 'Liste des Documents',
-            'listeDocument' => $listeDocument,
+            //'listeDocument' => $listeDocument,
+            'listeAcces' => $listeAcces,
         ]);
     }
 	#[Route('/deleteDocument/{id}', name: 'delete_document')]
@@ -81,7 +104,13 @@ class GedController extends AbstractController
     {
 		$sess = $request->getSession();
 		if($sess->get("idUtilisateur")){
-			
+		// supprimer le lien avec l'accés
+		$recupListeacces = $manager->getRepository(Acces::class)->findByDocumentId($id);
+		//dd($recupListeacces);
+		foreach($recupListeacces as $doc){
+			$manager->remove($doc);
+			$manager->flush();
+		}	
 		//suppression physique du document :
 		if(unlink("upload/".$id->getChemin())){
 		//suppression du lien dans la base de données

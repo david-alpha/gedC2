@@ -20,17 +20,17 @@
     </tr>
   </thead>
   <tbody>
-	{% for item in listeDocument %}
+	{% for item in listeAcces %}
     <tr class="table">
-      <th scope="row">{{ item.id }}</th>
-      <td>{{ item.typeId.type }}</td>
-      <td>{{ item.nom }}</td>
-      <td>{{ item.createdAt|date("d-m-y") }}</td>
+      <th scope="row">{{ item.documentId.id }}</th>
+      <td>{{ item.documentId.typeId.type }}</td>
+      <td>{{ item.documentId.nom }}</td>
+      <td>{{ item.documentId.createdAt|date("d-m-y") }}</td>
       <td> 
-		<a href="/deleteDocument/{{ item.id }}">
+		<a href="/deleteDocument/{{ item.documentId.id }}">
 			<i class="bi bi-trash"></i>
 		</a>
-		<a href="/upload/{{ item.chemin }}" target="blank">
+		<a href="/upload/{{ item.documentId.chemin }}" target="blank">
 			<i class="bi bi-download"></i>
 		</a>
 
