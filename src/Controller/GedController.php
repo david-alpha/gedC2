@@ -92,11 +92,15 @@ class GedController extends AbstractController
 		//Récupération de l'utilisateur
 		$user = $manager->getRepository(Utilisateur::class)->findOneById($sess->get("idUtilisateur"));
 		$listeAcces = $manager->getRepository(Acces::class)->findByUtilisateurId($user);
+		$listeUsers = $manager->getRepository(Utilisateur::class)->findAll();
+		$listeAutorisations = $manager->getRepository(Autorisation::class)->findAll();
 		//$listeDocument = $manager->getRepository(Document::class)->findAll();
         return $this->render('ged/listeDocument.html.twig', [
             'controller_name' => 'Liste des Documents',
             //'listeDocument' => $listeDocument,
             'listeAcces' => $listeAcces,
+            'listeUsers' => $listeUsers,
+            'listeAutorisations' => $listeAutorisations,
         ]);
     }
 	#[Route('/deleteDocument/{id}', name: 'delete_document')]
@@ -139,4 +143,26 @@ class GedController extends AbstractController
 			return $this->redirectToRoute('authentification');	
 		}
     }
+	#[Route('/partageGed', name: 'partageGed')]
+    public function partageGed(Request $request, EntityManagerInterface $manager): Response
+    {
+		$sess = $request->getSession();
+		if($sess->get("idUtilisateur")){
+			//Requête le user en focntion du formulaire
+			$user = $manager->getRepository(Utilisateur::class)->findOneById($request->request->get('utilisateur'));
+			$autorisation = $manager->getRepository(Autorisation::class)->findOneById($request->request->get('autorisation'));
+			$document = $manager->getRepository(Document::class)->findOneById($request->request->get('doc'));
+			$acces = new Acces();
+			$acces->setUtilisateurId($user);
+			$acces->setAutorisationId($autorisation);
+			$acces->setDocumentId($document);
+			$manager->persist($acces);
+			$manager->flush();
+					
+			return $this->redirectToRoute('listeDocument');
+		}else{
+			return $this->redirectToRoute('authentification');
+		}
+    }
+	
 }

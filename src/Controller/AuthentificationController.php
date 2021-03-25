@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Utilisateur;
+use App\Entity\Acces;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthentificationController extends AbstractController
@@ -49,11 +50,20 @@ class AuthentificationController extends AbstractController
     public function dashboard(Request $request, EntityManagerInterface $manager): Response
     {
 		$sess = $request->getSession();
-		if($sess->get("idUtilisateur"))
+		if($sess->get("idUtilisateur")){
+			
+			$listeDocuments = $manager->getRepository(Acces::class)->findByUtilisateurId($sess->get("idUtilisateur"));
+			$nbDocument = 0;
+			foreach($listeDocuments as $val){
+				$nbDocument ++ ;
+			}
 			return $this->render('authentification/dashboard.html.twig', [
 				'controller_name' => 'Espace Client',
+				'nbDocument' => $nbDocument,
 			]);
-		return $this->redirectToRoute('authentification');	
+		}else{
+			return $this->redirectToRoute('authentification');
+		}		
     }
 	 #[Route('/deconnexion', name: 'deconnexion')]
     public function deconnexion(Request $request, EntityManagerInterface $manager): Response
