@@ -10,8 +10,45 @@
 	</h4>
 	<br>
 	<hr>
-	Nombre de documents accessibles : {{ nbDocument }}<br>
-	Dernier document partagé :
-
+	Nombre de documents accessibles : {{ nbDocument }}
+	<div class="row">
+		<div class="col-md-4">
+			Dernier document partagé : {{ doc.nom }}
+		</div>
+		<div class="col-md-6">
+		</div>
+		<div class="col-md-2">
+			<a href="/upload/{{ doc.chemin }}" target="blank">
+				<i class="bi bi-download"></i>
+			</a>
+		</div>	
+	</div>
+	<hr>
+	<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Type</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Date</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr class="table">
+	  {% for item in listeDocUtilisateur %}
+      <th scope="row">{{ item.documentId.id }}</th>
+      <td>{{ item.documentId.typeId.type }}</td>
+      <td>{{ item.documentId.nom }}</td>
+      <td>{{ item.documentId.createdAt|date("d-m-y") }}</td>
+      <td> 
+		<a href="/upload/{{ item.documentId.chemin }}" target="blank">
+			<i class="bi bi-download"></i>
+		</a>		
+	  </td>
+    </tr>
+	{% endfor %}
+  </tbody>
+</table>
  
 {% endblock %}
